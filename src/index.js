@@ -20,9 +20,6 @@ THREE.ColorManagement.enabled = true
 /**************************************************
  * 0. Tweakable parameters for the scene
  *************************************************/
-const params = {
-  // general scene params
-}
 const uniforms = getDefaultUniforms()
 
 
@@ -67,7 +64,7 @@ let app = {
     let sequences = [0.05, 0.1, 0.15, 0.25, 0.45]
     let start = 0
     for (let j = 0; j < sequences.length; j++) {
-      subcount = start + count * sequences[j]
+      let subcount = start + count * sequences[j]
       for (let i = start; i < subcount; i++) {
         let theta = Math.random() * 2 * Math.PI
         
