@@ -88,12 +88,6 @@ export const runApp = (app, scene, renderer, camera, enableAnimation = false, un
         uniforms.u_time.value = elapsed
 
         app.updateScene(delta, elapsed)
-
-        if (composer === null) {
-            renderer.render(scene, camera)
-        } else {
-            composer.render()
-        }
     }
 
     app.initScene()

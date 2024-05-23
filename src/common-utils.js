@@ -54,6 +54,35 @@ export const smoothstep = (x) => {
     return x*x*(3.0 - 2.0*x);   // y: 0.0 .. 1.0
 }
 
+// The formula is taken from the Box Muller transform https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
+// returns range roughly from [-2.5, 2.5] with default mean and stdev values, some wanderers can go pass +/-3.5
+export function gaussianRandom(mean=0, stdev=1) {
+    let u = 1 - Math.random()
+    let v = Math.random()
+    let z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v)
+
+    return z * stdev + mean
+}
+
+/**
+ * 
+ * @param {number} x from gaussianRandom(200, 100)
+ * @param {number} y 
+ * @param {number} z from gaussianRandom(100, 50)
+ * @param {*} offset 
+ * @returns 
+ */
+export function spiral(x,y,z,offset=0) {
+    let r = Math.sqrt(x**2 + z**2)
+    let theta = offset
+    // This is to add a bit of deviation from the spiral, really comes down to the ratio of z and x
+    // if z:x ratio is bigger, the deviation will become bigger
+    theta += Math.atan(z/x)
+    // This is what essentially makes the spiral, as r increases, so does the angle
+    theta += (r/100) * 3
+    return {x: r*Math.cos(theta), y: y, z: r*Math.sin(theta)}
+}
+
 /**
  * https://www.prowaretech.com/articles/current/javascript/three-js/cover-scene-background-with-image#!
  * Setting background for threejs that doesn't stretch
