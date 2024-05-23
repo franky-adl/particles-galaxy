@@ -11,7 +11,7 @@ import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass"
 
 // Core boilerplate code deps
 import { createCamera, getDefaultUniforms, createRenderer, runApp } from "./core-utils"
-import { loadTexture, gaussianRandom, spiral } from "./common-utils"
+import { loadTexture, gaussianRandom, spiral, lerp } from "./common-utils"
 
 import vertex from './shaders/vertex.glsl'
 import fragment from './shaders/fragment.glsl'
@@ -131,29 +131,31 @@ let app = {
         
         let x, y, z
 
+        let centralClrs = [
+          Math.random() * 0.7 + 0.3,
+          Math.random() * 0.7 + 0.3,
+          Math.random() * 0.3 + 0.3
+        ]
+        let armClrs = [
+          Math.random() * 0.4 + 0.3,
+          Math.random() * 0.4 + 0.3,
+          Math.random() * 0.8 + 0.2
+        ]
+
         if (mode == "disc") {
           x = gaussianRandom(0, 40)
           z = gaussianRandom(0, 40)
           y = gaussianRandom(0, 5)
 
           // set colors
-          col.set([
-            Math.random() * 0.5 + 0.5,
-            Math.random() * 0.5 + 0.5,
-            Math.random() * 0.5 + 0.5
-          ], i*3)
+          col.set(centralClrs, i*3)
         } else if (mode == "spiral") {
           let spos = spiral(gaussianRandom(200,100), gaussianRandom(0,5), gaussianRandom(100,50), twist)
           x = spos.x
           y = spos.y
           z = spos.z
-
           // set colors
-          col.set([
-            Math.random() * 0.5 + 0.5,
-            Math.random() * 0.5 + 0.5,
-            Math.random() * 0.5 + 0.5
-          ], i*3)
+          col.set(armClrs, i*3)
         }
         pos.set([
           x,y,z
@@ -172,7 +174,7 @@ let app = {
         ...uniforms,
         uMouse: { value: this.uMouse },
         u_speed: { value: speed },
-        u_dyn_trail: { value: mode == 'disc' },
+        uMoves: { value: true },
         uCamPos: { value: camera.position },
         uSizeBase: { value: 0.1 },
         uSizeMult: { value: 1.2 },
@@ -220,15 +222,16 @@ let app = {
 
     for (let i = start; i < start+spiral1Count; i++) {
       let spos = spiral(gaussianRandom(200,100), gaussianRandom(0,5), gaussianRandom(100,50))
+      let radius = Math.sqrt(spos.x**2 + spos.z**2)
       pos.set([
         spos.x,
         spos.y,
         spos.z
       ], i*3)
       col.set([
-        Math.random() * 0.1,
-        Math.random() * 0.5,
-        Math.random() * 0.5 + 0.5
+        lerp(Math.random() * 0.8, Math.random() * 0.1, Math.min(Math.max(0, radius/150-0.5), 1)),
+        lerp(Math.random() * 0.8, Math.random() * 0.5, Math.min(Math.max(0, radius/150-0.5), 1)),
+        lerp(Math.random() * 0.4, Math.random() * 0.5 + 0.5, Math.min(Math.max(0, radius/150-0.5), 1))
       ], i*3)
     }
     // update start index for next loop
@@ -236,15 +239,16 @@ let app = {
 
     for (let i = start; i < start+spiral2Count; i++) {
       let spos = spiral(gaussianRandom(200,100), gaussianRandom(0,5), gaussianRandom(100,50), Math.PI)
+      let radius = Math.sqrt(spos.x**2 + spos.z**2)
       pos.set([
         spos.x,
         spos.y,
         spos.z
       ], i*3)
       col.set([
-        Math.random() * 0.1,
-        Math.random() * 0.5,
-        Math.random() * 0.5 + 0.5
+        lerp(Math.random() * 0.8, Math.random() * 0.1, Math.min(Math.max(0, radius/150-0.5), 1)),
+        lerp(Math.random() * 0.8, Math.random() * 0.5, Math.min(Math.max(0, radius/150-0.5), 1)),
+        lerp(Math.random() * 0.4, Math.random() * 0.5 + 0.5, Math.min(Math.max(0, radius/150-0.5), 1))
       ], i*3)
     }
 
@@ -261,7 +265,7 @@ let app = {
         uSizeBase: { value: 30.0 },
         uSizeMult: { value: 80.0 },
         uOpacity: { value: 0.01 },
-        u_dyn_trail: { value: false },
+        uMoves: { value: false },
         uCamPos: { value: camera.position }
       },
       vertexShader: vertex,
@@ -309,7 +313,7 @@ let app = {
       value: await loadTexture(particleTexture)
     }
 
-    this.addPoints("disc", 4000, 0.1)
+    this.addPoints("disc", 10000, 0.1)
     this.addPoints("spiral", 5000, 0.1)
     this.addPoints("spiral", 5000, 0.1, Math.PI)
 

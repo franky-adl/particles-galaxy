@@ -3,7 +3,7 @@
 
 uniform float u_time;
 uniform float u_speed;
-uniform bool u_dyn_trail;
+uniform bool uMoves;
 uniform float uSizeBase;
 uniform float uSizeMult;
 uniform vec3 uCamPos;
@@ -18,12 +18,12 @@ void main() {
     vUv = position.xy + vec2(0.5);
     color = col;
     radius = length(pos);
-
-    float particleSize = cnoise(pos*10.) * uSizeMult + uSizeBase;
+    float noise = cnoise(pos*10.);
+    float particleSize = noise * uSizeMult + uSizeBase;
     vec3 particle_pos = pos;
-    if (u_dyn_trail) {
+    if (uMoves) {
         // add a bit of small circular motions for the stars
-        particle_pos = vec3(particle_pos.x + sin(u_time * particleSize)*0.1, particle_pos.y, particle_pos.z + cos(u_time * particleSize)*0.1);
+        particle_pos += vec3(sin(u_time * particleSize + noise)*3., 0.,cos(u_time * particleSize + noise)*3.);
     }
     vec3 world_pos = (modelMatrix * vec4(particle_pos, 1.)).xyz;
 
